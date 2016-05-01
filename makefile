@@ -12,11 +12,14 @@ VPATH=source
 
 all: LightNode
 
-LightNode: $(objdir)/LightNode.o  $(objdir)/LightStrip.o $(objdir)/SPI.o $(objdir)/Color.o
-	$(LD) $(CFLAGS) $(objdir)/Color.o $(objdir)/SPI.o $(objdir)/LightStrip.o $(objdir)/LightNode.o -lboost_system -lboost_thread -lpthread -lbcm2835 -o LightNode
+LightNode: $(objdir)/LightNode.o  $(objdir)/Communicator.o $(objdir)/LightStrip.o $(objdir)/SPI.o $(objdir)/Color.o
+	$(LD) $(CFLAGS) $(objdir)/Color.o $(objdir)/SPI.o $(objdir)/LightStrip.o $(objdir)/Communicator.o $(objdir)/LightNode.o -lboost_system -lboost_thread -lpthread -lbcm2835 -o LightNode
 
 $(objdir)/LightNode.o: $(srcdir)/LightNode.cpp $(srcdir)/LightNode.hpp
 	$(CC) $(CFLAGS) -c $(srcdir)/LightNode.cpp -o $(objdir)/LightNode.o
+
+$(objdir)/Communicator.o: $(srcdir)/Communicator.cpp $(srcdir)/Communicator.hpp
+	$(CC) $(CFLAGS) -c $(srcdir)/Communicator.cpp -o $(objdir)/Communicator.o
 
 $(objdir)/LightStrip.o: $(srcdir)/LightStrip.cpp $(srcdir)/LightStrip.hpp
 	$(CC) $(CFLAGS) -c $(srcdir)/LightStrip.cpp -o $(objdir)/LightStrip.o
