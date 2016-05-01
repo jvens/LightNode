@@ -16,6 +16,12 @@ LightStrip::~LightStrip() {
 	SPI_End();
 }
 
+void LightStrip::Set(vector<Color>& colors) {
+	if(colors.size() == size) {
+		this->colors = colors;
+	}
+}
+
 void LightStrip::Set(int id, Color c) {
 	if (id < 0 || id >= size)
 		return;

@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 class LightStrip
 {
 public:
@@ -14,6 +16,7 @@ public:
 	LightStrip(int count);
 	~LightStrip();
 
+	void Set(vector<Color>& colors);
 	void Set(int id, Color c);
 	void SetAll(Color c);
 
@@ -30,7 +33,7 @@ public:
 
 	void Display();
 private:
-	std::vector<Color> colors;
+	vector<Color> colors;
 	int size;
 
 	void MoveColors(int start, int end, int amount);
