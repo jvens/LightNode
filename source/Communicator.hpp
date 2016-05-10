@@ -33,12 +33,17 @@ namespace LightNode
 				CONFIG = 0x01,
 				UPDATE = 0x02,
 				ACK = 0x03,
+				ALIVE = 0x04,
 				NACK = 0xFF};
 
 			void startListening();
 
 			void handleReceive(const boost::system::error_code& error,
 				size_t bytesTransferred);
+
+			void handleAliveTimer();
+
+			void startAliveTimer();
 
 			void threadRoutine();
 
@@ -51,6 +56,7 @@ namespace LightNode
 			boost::asio::io_service ioService;
 			boost::asio::ip::udp::socket udpSocket;
 			boost::asio::ip::udp::endpoint udpEndpoint;
+			boost::asio::deadline_timer aliveTimer;
 
 			thread asyncThread;
 

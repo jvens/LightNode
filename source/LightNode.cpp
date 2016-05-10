@@ -1,6 +1,6 @@
 #include "LightNode.hpp"
 
-#define LED_COUNT		240
+#define LED_COUNT		27
 
 using namespace std;
 
