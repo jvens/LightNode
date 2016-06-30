@@ -12,6 +12,17 @@ LightNode::Communicator::Communicator(unsigned int pixelCount,
 	sendPort = _sendPort;
 	recvPort = _recvPort;
 
+	udpSocket.open(boost::asio::ip::udp::v4());
+
+	//Bind the socket
+	try {
+		udpSocket.bind(recvEndpoint);
+	}
+	catch(const std::exception& e) {
+		std::cout << "[Error] Exception thrown from bind: " << e.what()
+			<< std::endl;
+	}
+
 	connected = false;
 
 	this->pixelCount = pixelCount;
@@ -75,12 +86,14 @@ void LightNode::Communicator::handleReceive(const boost::system::error_code& err
 				break;
 
 				default:
-					cerr << "Unimplemented packet id received: " << (int)readId << endl;
+					std::cout << "[Error] Unimplemented packet id received: "
+						<< (int)readId << endl;
 				break;
 			}
 		}
 		else { //The packet header was not correct
-			cout << "Packet received with incorrect header: " << readHeader << endl;
+			cout << "[Error] Packet received with incorrect header: "
+				<< (int)readHeader << endl;
 		}
 	}
 
@@ -98,26 +111,26 @@ void LightNode::Communicator::threadRoutine() {
 
 void LightNode::Communicator::handleAliveTimer() {
 	if(!connected) {
-		cout << "Alive timer: not connected" << endl;
+		//cout << "Alive timer: not connected" << endl;
 	}
 	else {
-	vector<unsigned char> message;
+		vector<unsigned char> message;
 
-	//Push the header
-	message.push_back( (HEADER >> 8) & 0xFF );
-	message.push_back( HEADER & 0xFF );
+		//Push the header
+		message.push_back( (HEADER >> 8) & 0xFF );
+		message.push_back( HEADER & 0xFF );
 
-	//Push the identification
-	message.push_back( PACKET_ID::ALIVE );
+		//Push the identification
+		message.push_back( PACKET_ID::ALIVE );
 
-	try {
-		udpSocket.send_to(boost::asio::buffer(message), sendEndpoint);
-	}
-	catch(exception& e) {
-		cerr << "sendAck exception caught: " << e.what() << endl;
-	}
+		try {
+			udpSocket.send_to(boost::asio::buffer(message), sendEndpoint);
+		}
+		catch(exception& e) {
+			cerr << "sendAck exception caught: " << e.what() << endl;
+		}
 
-	cout << "Alive message sent" << endl;
+		//cout << "Alive message sent" << endl;
 	}
 
 	startAliveTimer();
@@ -182,6 +195,9 @@ void LightNode::Communicator::sendInfo() {
 	message.push_back( pixelCount & 0xFF );
 
 	try {
+		std::cout << "[Info] Communicator::sendInfo: Sending info to "
+			<< sendEndpoint << std::endl;
+
 		udpSocket.send_to(boost::asio::buffer(message), sendEndpoint);
 	}
 	catch(exception& e) {
