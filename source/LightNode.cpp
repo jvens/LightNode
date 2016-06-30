@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 	LightStrip strip(ledCount);
 
 	cout << "[Info] Starting Communicator" << endl;
-	LightNode::Communicator comm(LED_COUNT, SEND_PORT, RECV_PORT,
+	LightNode::Communicator comm(ledCount, SEND_PORT, RECV_PORT,
 		[&ioService, &strip](vector<Color>& pixels) {
 			cbUpdate(ioService, pixels, strip);
 		});
