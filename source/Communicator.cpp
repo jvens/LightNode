@@ -62,8 +62,8 @@ void LightNode::Communicator::handleReceive(const boost::system::error_code& err
 		//If the packet header is correct
 		if(readHeader == HEADER) {
 
-			std::cout << "[Info] Received packet with ID " << (int)readId
-				<< std::endl;
+//			std::cout << "[Info] Received packet with ID " << (int)readId
+//				<< std::endl;
 
 			//Respond to the same address, but different port
 			sendEndpoint = recvEndpoint;

@@ -9,24 +9,32 @@ using namespace std;
 
 void cbUpdate(boost::asio::io_service& ioService, vector<Color>& pixels, LightStrip& strip);
 
-int main() {
-	cout << "Starting ioService" << endl;
+int main(int argc, char* argv[]) {
+	int ledCount = LED_COUNT;
+
+	if(argc == 2) {
+		ledCount = std::stoi(argv[1]);
+
+		std::cout << "[Info] LED count " << ledCount << std::endl;
+	}
+	else {
+		std::cout << "[Info] Using default LED count " << ledCount << std::endl;
+	}
+
+
 	boost::asio::io_service ioService;
 
-	cout << "Starting LightStrip" << endl;
-	LightStrip strip(LED_COUNT);
+	LightStrip strip(ledCount);
 
-	cout << "Starting Communicator" << endl;
+	cout << "[Info] Starting Communicator" << endl;
 	LightNode::Communicator comm(LED_COUNT, SEND_PORT, RECV_PORT,
 		[&ioService, &strip](vector<Color>& pixels) {
 			cbUpdate(ioService, pixels, strip);
 		});
 
-	cout << "Updating the LED strip" << endl;
 	//Clear the strip
 	strip.Display();
 	
-	cout << "Entering ioService loop" << endl;
 	while(1) {
 		ioService.run();
 		ioService.reset();
