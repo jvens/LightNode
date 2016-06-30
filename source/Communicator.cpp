@@ -1,10 +1,16 @@
 #include "Communicator.hpp"
 
 LightNode::Communicator::Communicator(unsigned int pixelCount,
+	uint16_t _sendPort, uint16_t _recvPort,
 	function<void(vector<Color>&)> cbUpdate)
-	: udpSocket(ioService, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), PORT))
+	:	sendEndpoint(boost::asio::ip::udp::v4(), _sendPort)
+	,	recvEndpoint(boost::asio::ip::udp::v4(), _recvPort)
+	,	udpSocket(ioService)
 	, asyncThread(bind(&LightNode::Communicator::threadRoutine, this))
-	, aliveTimer(ioService){
+	, aliveTimer(ioService) {
+
+	sendPort = _sendPort;
+	recvPort = _recvPort;
 
 	connected = false;
 
@@ -28,7 +34,7 @@ bool LightNode::Communicator::isConnected() {
 
 void LightNode::Communicator::startListening() {
 	udpSocket.async_receive_from(boost::asio::buffer(readBuf),
-		udpEndpoint,
+		recvEndpoint,
 		boost::bind(&LightNode::Communicator::handleReceive, this,
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred));
@@ -44,9 +50,23 @@ void LightNode::Communicator::handleReceive(const boost::system::error_code& err
 
 		//If the packet header is correct
 		if(readHeader == HEADER) {
+
+			std::cout << "[Info] Received packet with ID " << (int)readId
+				<< std::endl;
+
+			//Respond to the same address, but different port
+			sendEndpoint = recvEndpoint;
+			sendEndpoint.port(sendPort);
+
 			switch(readId) {
+				case PACKET_ID::PING:
+					//We respond with ACK
+					sendAck();
+				break;
+
 				case PACKET_ID::INIT:
-					sendConfigMessage();
+					//We respond with info packet
+					sendInfo();
 					connected = true;
 				break;
 
@@ -55,7 +75,7 @@ void LightNode::Communicator::handleReceive(const boost::system::error_code& err
 				break;
 
 				default:
-					cerr << "Unimplemented packet id received: " << readId << endl;
+					cerr << "Unimplemented packet id received: " << (int)readId << endl;
 				break;
 			}
 		}
@@ -91,7 +111,7 @@ void LightNode::Communicator::handleAliveTimer() {
 	message.push_back( PACKET_ID::ALIVE );
 
 	try {
-		udpSocket.send_to(boost::asio::buffer(message), udpEndpoint);
+		udpSocket.send_to(boost::asio::buffer(message), sendEndpoint);
 	}
 	catch(exception& e) {
 		cerr << "sendAck exception caught: " << e.what() << endl;
@@ -122,7 +142,7 @@ void LightNode::Communicator::sendAck() {
 	message.push_back( PACKET_ID::ACK );
 
 	try {
-		udpSocket.send_to(boost::asio::buffer(message), udpEndpoint);
+		udpSocket.send_to(boost::asio::buffer(message), sendEndpoint);
 	}
 	catch(exception& e) {
 		cerr << "sendAck exception caught: " << e.what() << endl;
@@ -140,14 +160,14 @@ void LightNode::Communicator::sendNack() {
 	message.push_back( PACKET_ID::NACK );
 
 	try {
-		udpSocket.send_to(boost::asio::buffer(message), udpEndpoint);
+		udpSocket.send_to(boost::asio::buffer(message), sendEndpoint);
 	}
 	catch(exception& e) {
 		cerr << "sendAck exception caught: " << e.what() << endl;
 	}
 }
 
-void LightNode::Communicator::sendConfigMessage() {
+void LightNode::Communicator::sendInfo() {
 	vector<unsigned char> message;
 
 	//Push the header
@@ -155,14 +175,14 @@ void LightNode::Communicator::sendConfigMessage() {
 	message.push_back( HEADER & 0xFF );
 
 	//Push the identification
-	message.push_back( PACKET_ID::CONFIG );
+	message.push_back( PACKET_ID::INFO );
 
 	//Push the pixel count
 	message.push_back( (pixelCount >> 8) & 0xFF );
 	message.push_back( pixelCount & 0xFF );
 
 	try {
-		udpSocket.send_to(boost::asio::buffer(message), udpEndpoint);
+		udpSocket.send_to(boost::asio::buffer(message), sendEndpoint);
 	}
 	catch(exception& e) {
 		cerr << "sendConfigMessage exception caught: " << e.what() << endl;
@@ -182,7 +202,7 @@ void LightNode::Communicator::processUpdate(int bytesTransferred) {
 
 	vector<Color> pixels;
 
-	for(int i = 0; i < payloadLength; i += 3) {
+	for(int i = 3; i < bytesTransferred; i += 3) {
 		pixels.emplace_back(readBuf[i], readBuf[i+1], readBuf[i+2]);
 	}
 

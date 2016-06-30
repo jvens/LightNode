@@ -1,6 +1,9 @@
 #include "LightNode.hpp"
 
-#define LED_COUNT		27
+#define LED_COUNT		(32*24)
+
+#define SEND_PORT	54924
+#define RECV_PORT	54923
 
 using namespace std;
 
@@ -14,7 +17,7 @@ int main() {
 	LightStrip strip(LED_COUNT);
 
 	cout << "Starting Communicator" << endl;
-	LightNode::Communicator comm(LED_COUNT,
+	LightNode::Communicator comm(LED_COUNT, SEND_PORT, RECV_PORT,
 		[&ioService, &strip](vector<Color>& pixels) {
 			cbUpdate(ioService, pixels, strip);
 		});
@@ -28,7 +31,7 @@ int main() {
 		ioService.run();
 		ioService.reset();
 
-		this_thread::sleep_for(chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(1000));
 	}
 
 

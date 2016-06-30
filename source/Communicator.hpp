@@ -18,7 +18,9 @@ namespace LightNode
 	class Communicator
 	{
 		public:
-			Communicator(unsigned int pixelCount, function<void(vector<Color>&)> cbUpdate);
+			Communicator(unsigned int pixelCount,
+				uint16_t sendPort, uint16_t recvPort,
+				function<void(vector<Color>&)> cbUpdate);
 			~Communicator();
 
 			bool isConnected();
@@ -29,11 +31,12 @@ namespace LightNode
 			static const int HEADER = 0xAA55;
 
 			enum PACKET_ID {
-				INIT = 0x00,
-				CONFIG = 0x01,
-				UPDATE = 0x02,
-				ACK = 0x03,
+				PING = 0x00,
+				INIT = 0x01,
+				INFO = 0x02,
+				UPDATE = 0x03,
 				ALIVE = 0x04,
+				ACK = 0xFE,
 				NACK = 0xFF};
 
 			void startListening();
@@ -49,13 +52,17 @@ namespace LightNode
 
 			void sendAck();
 			void sendNack();
-			void sendConfigMessage();
+			void sendInfo();
 
 			void processUpdate(int bytesTransferred);
 
+			//Network stuff
 			boost::asio::io_service ioService;
 			boost::asio::ip::udp::socket udpSocket;
-			boost::asio::ip::udp::endpoint udpEndpoint;
+			boost::asio::ip::udp::endpoint sendEndpoint, recvEndpoint;
+			uint16_t sendPort, recvPort;
+
+			//Timer stuff
 			boost::asio::deadline_timer aliveTimer;
 
 			thread asyncThread;
