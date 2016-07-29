@@ -27,7 +27,8 @@ int main(int argc, char* argv[]) {
 	LightStrip strip(ledCount);
 
 	cout << "[Info] Starting Communicator" << endl;
-	LightNode::Communicator comm(ledCount, SEND_PORT, RECV_PORT,
+	LightNode::Communicator comm(LightNode::Communicator::NODE_STRIP_DIGITAL,
+		ledCount, SEND_PORT, RECV_PORT,
 		[&ioService, &strip](vector<Color>& pixels) {
 			cbUpdate(ioService, pixels, strip);
 		});
@@ -48,7 +49,7 @@ int main(int argc, char* argv[]) {
 
 void cbUpdate(boost::asio::io_service& ioService, vector<Color>& pixels, LightStrip& strip) {
 	//auto cbLambda = [&pixels, &strip]() {
-		//cout << "Updating lights!" << endl;
+		cout << "Updating lights: " << pixels[0].ToString() << endl;
 
 		strip.Set(pixels);
 		strip.Display();

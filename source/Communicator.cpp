@@ -1,16 +1,19 @@
 #include "Communicator.hpp"
 
-LightNode::Communicator::Communicator(unsigned int pixelCount,
-	uint16_t _sendPort, uint16_t _recvPort,
-	function<void(vector<Color>&)> cbUpdate)
+LightNode::Communicator::Communicator(NodeType_e _nodeType,
+	uint16_t _pixelCount, uint16_t _sendPort, uint16_t _recvPort,
+	function<void(vector<Color>&)> _cbUpdate)
 	:	sendEndpoint(boost::asio::ip::udp::v4(), _sendPort)
 	,	recvEndpoint(boost::asio::ip::udp::v4(), _recvPort)
 	,	udpSocket(ioService)
+	,	sendPort(_sendPort)
+	,	recvPort(_recvPort)
+	,	aliveTimer(ioService)
 	, asyncThread(bind(&LightNode::Communicator::threadRoutine, this))
-	, aliveTimer(ioService) {
-
-	sendPort = _sendPort;
-	recvPort = _recvPort;
+	,	connected(true)
+	,	pixelCount(_pixelCount)
+	,	nodeType(_nodeType)
+	,	cbUpdate(_cbUpdate) {
 
 	udpSocket.open(boost::asio::ip::udp::v4());
 
@@ -22,11 +25,6 @@ LightNode::Communicator::Communicator(unsigned int pixelCount,
 		std::cout << "[Error] Exception thrown from bind: " << e.what()
 			<< std::endl;
 	}
-
-	connected = false;
-
-	this->pixelCount = pixelCount;
-	this->cbUpdate = cbUpdate;
 
 	startAliveTimer();
 

@@ -1,5 +1,4 @@
-#ifndef COMMUNICATOR_HPP
-#define COMMUNICATOR_HPP
+#pragma once
 
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
@@ -18,7 +17,13 @@ namespace LightNode
 	class Communicator
 	{
 		public:
-			Communicator(unsigned int pixelCount,
+			enum NodeType_e {
+				NODE_STRIP_DIGITAL = 1,
+				NODE_STRIP_ANALOG = 2,
+				NODE_STRIP_MATRIX = 3
+			};
+
+			Communicator(NodeType_e, uint16_t pixelCount,
 				uint16_t sendPort, uint16_t recvPort,
 				function<void(vector<Color>&)> cbUpdate);
 			~Communicator();
@@ -69,10 +74,9 @@ namespace LightNode
 
 			bool connected;
 			bool runThread = true;
-			unsigned int pixelCount;
+			uint16_t pixelCount;
+			NodeType_e nodeType;
 			boost::array<unsigned char, BUFFER_SIZE> readBuf;
 			function<void(vector<Color>&)> cbUpdate;
 	};
 } //namespace LightNode
-
-#endif
