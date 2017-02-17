@@ -1,6 +1,6 @@
 #include "LightNode.hpp"
 
-#define LED_COUNT		(32*24)
+#define LED_COUNT		(32)
 
 #define SEND_PORT	54924
 #define RECV_PORT	54923
@@ -15,10 +15,10 @@ int main(int argc, char* argv[]) {
 	if(argc == 2) {
 		ledCount = std::stoi(argv[1]);
 
-		std::cout << "[Info] LED count " << ledCount << std::endl;
+//		std::cout << "[Info] LED count " << ledCount << std::endl;
 	}
 	else {
-		std::cout << "[Info] Using default LED count " << ledCount << std::endl;
+//		std::cout << "[Info] Using default LED count " << ledCount << std::endl;
 	}
 
 
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 
 	LightStrip strip(ledCount);
 
-	cout << "[Info] Starting Communicator" << endl;
+//	cout << "[Info] Starting Communicator" << endl;
 	LightNode::Communicator comm(LightNode::Communicator::NODE_STRIP_DIGITAL,
 		ledCount, SEND_PORT, RECV_PORT,
 		[&ioService, &strip](vector<Color>& pixels) {
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
 void cbUpdate(boost::asio::io_service& ioService, vector<Color>& pixels, LightStrip& strip) {
 	//auto cbLambda = [&pixels, &strip]() {
-		cout << "Updating lights: " << pixels[0].ToString() << endl;
+		//cout << "Updating lights: " << pixels[0].ToString() << endl;
 
 		strip.Set(pixels);
 		strip.Display();

@@ -1,4 +1,7 @@
 #include "LightStrip.hpp"
+#include <iostream>
+#include <string>
+
 
 LightStrip::LightStrip(int count) {
 	SPI_Init();
@@ -91,15 +94,21 @@ void LightStrip::Display() {
 	}
 
 	//Write the pixel frames
+	std::string cmd =  "fish -c \"color_print ";
 	for(int i = 0; i < size; i++) {
-		int index = 4 + 4*i;
+		//int index = 4 + 4*i;
 		Color c = colors[i];
+		cmd += c.ToString() + " ";
 
-		data[index] = 0xFF;
-		data[index + 1] = c.GetBlue();
-		data[index + 2] = c.GetGreen();
-		data[index + 3] = c.GetRed();
+		//data[index] = 0xFF;
+		//data[index + 1] = c.GetBlue();
+		//data[index + 2] = c.GetGreen();
+		//data[index + 3] = c.GetRed();
 	}
+
+	cmd += "\"";
+	system(cmd.c_str());
+//	std::cout << cmd;
 
 	//Initialize the end frames
 	for(int i = 0; i < endFrameCount; i++) {

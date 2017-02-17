@@ -193,8 +193,8 @@ void LightNode::Communicator::sendInfo() {
 	message.push_back( pixelCount & 0xFF );
 
 	try {
-		std::cout << "[Info] Communicator::sendInfo: Sending info to "
-			<< sendEndpoint << std::endl;
+//		std::cout << "[Info] Communicator::sendInfo: Sending info to "
+//			<< sendEndpoint << std::endl;
 
 		udpSocket.send_to(boost::asio::buffer(message), sendEndpoint);
 	}

@@ -13,7 +13,7 @@ VPATH=source
 all: LightNode
 
 LightNode: $(objdir)/LightNode.o  $(objdir)/Communicator.o $(objdir)/LightStrip.o $(objdir)/SPI.o $(objdir)/Color.o
-	$(LD) $(CFLAGS) $(objdir)/Color.o $(objdir)/SPI.o $(objdir)/LightStrip.o $(objdir)/Communicator.o $(objdir)/LightNode.o -lboost_system -lboost_thread -lpthread -lbcm2835 -o LightNode
+	$(LD) $(CFLAGS) $(objdir)/Color.o $(objdir)/SPI.o $(objdir)/LightStrip.o $(objdir)/Communicator.o $(objdir)/LightNode.o -lboost_system -lboost_thread -lpthread -o LightNode
 
 $(objdir)/LightNode.o: $(srcdir)/LightNode.cpp $(srcdir)/LightNode.hpp
 	$(CC) $(CFLAGS) -c $(srcdir)/LightNode.cpp -o $(objdir)/LightNode.o

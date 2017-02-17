@@ -1,4 +1,5 @@
 #include "Color.hpp"
+#include <iomanip>
 
 Color::Color() {
 	r = g = b = 0;
@@ -37,7 +38,12 @@ bool Color::operator==(Color rhs) {
 }
 
 std::string Color::ToString() {
-	return "(" + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ")";
+	
+	char output[20];
+	sprintf(output, "%02X%02X%02X", r, g, b);
+
+
+	return output;
 }
 
 void Color::Scale(float scale) {
